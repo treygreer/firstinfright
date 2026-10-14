@@ -1,5 +1,13 @@
-const CACHE="treb-viewer-5cc2b3ecd637";
-const FILES=['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png','./treb-2026-offline.html'];
-self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(FILES)).then(()=>self.skipWaiting())));
-self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith('treb-viewer-')&&key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
-self.addEventListener('fetch',event=>{if(event.request.method!=='GET'||new URL(event.request.url).origin!==self.location.origin)return;event.respondWith(caches.open(CACHE).then(async cache=>(await cache.match(event.request))||fetch(event.request)));});
+// Retire the former viewer's root-scoped worker and cached index page.
+self.addEventListener('install',()=>self.skipWaiting());
+self.addEventListener('activate',event=>event.waitUntil((async()=>{
+  const keys=await caches.keys();
+  const oldCaches=keys.filter(key=>key.startsWith('treb-viewer-'));
+  await Promise.all(oldCaches.map(key=>caches.delete(key)));
+  await self.clients.claim();
+  await self.registration.unregister();
+  for(const client of await self.clients.matchAll({type:'window'})) {
+    const url=new URL(client.url);
+    if(oldCaches.length && url.origin===self.location.origin && (url.pathname==='/' || url.pathname==='/index.html'))await client.navigate(client.url);
+  }
+})()));
