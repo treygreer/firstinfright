@@ -21,5 +21,5 @@ separate origin.
 The old `treb-2026-offline.html` URL redirects to the current viewer download.
 The installed viewer should be installed again from its new simulator URL.
 
-The homepage links to the current 2026 model: 6 lb pumpkin, 11 oz sling, 9 oz
+The homepage links to the current 2026 model: 8 lb pumpkin, 11 oz sling, 9 oz
 added hardware at the arm tip, maximum-range optimization at 30°.
